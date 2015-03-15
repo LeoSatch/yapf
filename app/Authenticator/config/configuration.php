@@ -1,6 +1,6 @@
 <?php
 
-$config = array(
+$configuration = array(
     'authNeeded' => false,
     'parameters' => array(
         'post' => array(

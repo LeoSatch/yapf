@@ -61,10 +61,9 @@ abstract class Controller {
         YAPFLogger::log( LOG_DEBUG, 'starting controller' );
         $args = func_get_args();
         $args = $args[ 0 ];
-        print_r( func_get_args() );
-        print_r( $_POST );
+        
         $nb = count( $args );
-        YAPFLogger::log( LOG_DEBUG, 'argument number : ' . $nb );
+        YAPFLogger::log( LOG_INFO, 'argument number : ' . $nb );
 
         switch ( $nb ) {
             case 0:
@@ -94,15 +93,25 @@ abstract class Controller {
                 break;
         }
 
+        // check if GET parameters are added
+        if ( false !== strpos( self::$_module, '?' ) ) {
+            list( self::$_module, $extraParameters ) = explode( '?', self::$_module, 2 );
+        }
+
         // adding POST data to parameters
         self::$_parameters += $_POST;
 
-        YAPFLogger::log( LOG_DEBUG, 'application = ' . self::$_application );
-        YAPFLogger::log( LOG_DEBUG, 'module = ' . self::$_module );
-        YAPFLogger::log( LOG_DEBUG, 'parameters : ' );
-        YAPFLogger::log( LOG_DEBUG, self::$_parameters );
+        YAPFLogger::log( LOG_INFO, 'application = ' . self::$_application );
+        YAPFLogger::log( LOG_INFO, 'module = ' . self::$_module );
+        YAPFLogger::log( LOG_INFO, 'parameters : ' );
+        YAPFLogger::log( LOG_INFO, self::$_parameters );
 
-        define( '_APP_DIR', realpath( '../app' ) . DIRECTORY_SEPARATOR );
+        define( '_APP_DIR', realpath( '../app' ) . DIRECTORY_SEPARATOR . ucfirst( self::$_application ) . DIRECTORY_SEPARATOR );
+        define( '_APP_LIB_DIR', _APP_DIR . 'lib' . DIRECTORY_SEPARATOR );
+        define( '_APP_CONF_DIR', _APP_DIR . 'config' . DIRECTORY_SEPARATOR );
+        define( '_APP_TPL_DIR', _APP_DIR . 'tpl' . DIRECTORY_SEPARATOR );
+        define( '_APP_ACIONS_DIR', _APP_DIR . 'actions' . DIRECTORY_SEPARATOR );
+
         define( '_CORE_DIR', realpath( '../core' ) . DIRECTORY_SEPARATOR );
 
         self::_setAutoloader();
@@ -110,32 +119,45 @@ abstract class Controller {
         self::_loadConfiguration();
         
 
-        if ( array_key_exists( 'authNeeded', self::$_configuration ) && self::$_configuration[ 'authNeeded' ] ) {
+        if ( ParametersSettings::needsAuth() ) {
             self::$_application = 'Authenticator';
             self::$_module = 'index';
         }
         self::_loadApplication();
         $l_sResult = self::_runApplication();
 
+        if ( !$l_sResult ) {
+            YAPFLogger::log( LOG_ALERT, 'retour null apres run du module' );
+        }
+
         self::_showView( $l_sResult );
 
         $l_nEnd = microtime( true );
-
-        echo "<h2>", ($l_nEnd - $l_nStart);
+        YAPFLogger::log( LOG_INFO, 'temps: ' . ($l_nEnd - $l_nStart) );
     }
 
+    /**
+     *
+     */
     protected static function _setAutoloader() {
         YAPFLogger::log( LOG_DEBUG, 'registering autoloader' );
         spl_autoload_register( array( 'Controller', '_autoloader' ) );
     }
 
+    /**
+     *
+     * @param string $in_sClassName
+     * @throws RuntimeException
+     */
     protected static function _autoloader( $in_sClassName ) {
         // check dans app puis dans core
         $l_bFound = false;
-        foreach ( array( _APP_DIR, _CORE_DIR ) as $l_sDir ) {
+        foreach ( array( _APP_DIR, _APP_LIB_DIR, _CORE_DIR ) as $l_sDir ) {
+            echo "<hr>", $l_sDir . $in_sClassName . _CLASS_SUFFIXE, "<hr>";
             if ( file_exists( $l_sDir . $in_sClassName . _CLASS_SUFFIXE ) ) {
                 require $l_sDir . $in_sClassName . _CLASS_SUFFIXE;
                 $l_bFound = true;
+                break;
             }
         }
 
@@ -145,12 +167,20 @@ abstract class Controller {
         }
     }
 
+    /**
+     *
+     */
     protected static function _loadConfiguration() {
         require '../etc/controller.conf.php';
-        require '../app/' . ucfirst( self::$_application ) . '/config/configuration.php';
-        self::$_configuration = $config;
+        ParametersSettings::init( self::$_application );
+        //require '../app/' . ucfirst( self::$_application ) . '/config/configuration.php';
+        //self::$_configuration = $config;
     }
 
+    /**
+     *
+     * @throws RuntimeException
+     */
     protected static function _loadApplication() {
         self::$_classname = ucfirst( self::$_application ) . ucfirst( self::$_module ) . _CLASS_SUFFIXE;
         $sTmp = '../app/' . ucfirst( self::$_application ) . '/actions/' . self::$_classname;
@@ -166,6 +196,10 @@ abstract class Controller {
         
     }
 
+    /**
+     *
+     * @return string
+     */
     protected static function _runApplication() {
         $sTmpClassName = ucfirst( self::$_application ) . ucfirst( self::$_module );
         YAPFLogger::log( LOG_DEBUG, 'running ' . $sTmpClassName );
@@ -174,7 +208,11 @@ abstract class Controller {
         return $l_sResult;
     }
 
-    protected static function _showView( $in_sResult ) {
+    /**
+     *
+     * @param string $in_sResult
+     */
+    protected static function _showView( $in_sResult = 'Index' ) {
         // chargement du template
         YAPFLogger::log( LOG_DEBUG, 'view: ' . _APP_TPL . $in_sResult . '.tpl.php' );
         require _APP_TPL . $in_sResult . '.tpl.php';

@@ -4,7 +4,7 @@
  *
  * @author satch
  */
-abstract class HelloIndex extends \YAPF\Controller\Action {
+abstract class HelloIndex extends Action {
 
     public static function run() {
 

@@ -9,35 +9,27 @@ abstract class Action {
 
     protected static $_aConf = array();
     protected static $_aParameters = array();
+    protected static $_aData = array();
+
+    const SUCCESS = 1001;
+    const ERROR_PARAM_KO = 2001;
 
     public static function run( & $in_aConfiguration, & $out_aData = array(), & $in_aParameters = array() ) {
+        $l_nResult = static::SUCCESS;
         // la conf
-        self::$_aConf = $in_aConfiguration;
+        static::$_aConf = $in_aConfiguration;
 
         // les parametres
-        self::$_aParameters = $in_aParameters;
-
-        // doit-on etre identifie
-        if ( array_key_exists( 'authNeeded', $in_aConfiguration ) && $in_aConfiguration[ 'authNeeded' ] ) {
-            self::_authenticateUser( );
-        }
+        static::$_aParameters = $in_aParameters;
 
         // validation des paramètres
         if ( !empty( $_POST ) ) {
-            self::_parametersValidation( $in_aParameters );
+            $l_nResult = static::_parametersValidation();
         }
+
+        return $l_nResult;
     }
 
-    protected static function _authenticateUser() {
-        session_start();
-        if ( empty( $_SESSION ) || !isset( $_SESSION[ 'userToken' ] ) || $_SESSION[ 'userToken' ] != '' ) {
-            // memoire de la page demandée
-            $_SESSION[ 'URL' ] = $_SERVER[ 'REQUEST_URI' ];
-            while ( !Authenticator::run( array() ) ) {
-                
-            }
-        }
-    }
 
     protected static function _loadConfiguration() {
         // on charge
@@ -48,19 +40,24 @@ abstract class Action {
      *
      * @param array $in_aParameters
      */
-    protected static function _parametersValidation( $in_aParameters ) {
-        print_r( $in_aParameters );
-        die;
-        print_r( self::$_aConf[ 'parameters' ][ 'post' ] );
-        foreach ( self::$_aConf[ 'parameters' ][ 'post' ] as $l_sParamName => $l_aParamData ) {
-            YAPFLogger::log( LOG_DEBUG, 'validating parameter ' . $l_sParamName );
-            if ( array_key_exists( 'regex', $l_aParamData ) ) {
-                YAPFLogger::log( LOG_DEBUG, 'value = ' . $in_aParameters[ $l_sParamName ] );
-                var_dump( preg_match( $l_aParamData[ 'regex' ], $in_aParameters[ $l_sParamName ] ) );
+    protected static function _parametersValidation() {
+        $l_bResult = true;
+
+        $l_aConf = static::$_aConf;
+        $l_aParam = static::$_aParameters;
+
+        foreach ( $l_aConf[ 'parameters' ][ 'post' ] as $l_sParamName => $l_mParamValue ) {
+            if ( !preg_match( $l_mParamValue[ 'regex' ], $l_aParam[ $l_sParamName ] ) ) {
+                $l_bResult = false;
+                static::$_aData[ 'errors' ][] = $l_sParamName . ' is incorrect';
             }
         }
-
-        die( 'fin valid' );
+        
+        if ( $l_bResult ) {
+            return static::SUCCESS;
+        } else {
+            return static::ERROR_PARAM_KO;
+        }
     }
 
 }
