@@ -59,8 +59,15 @@ abstract class Controller {
 
         // start logger
         YAPFLogger::log( LOG_DEBUG, 'starting controller' );
-        $args = func_get_args();
-        $args = $args[ 0 ];
+        
+        // le path et les parametres 
+        list( $path, $params) = explode('?', $_SERVER[ 'REQUEST_URI' ]);
+        
+        if ( '/' == $path ) {
+            $path='index';
+        }
+        
+        $args = array_slice( explode( '/', $path ), 1 );
         
         $nb = count( $args );
         YAPFLogger::log( LOG_INFO, 'argument number : ' . $nb );
