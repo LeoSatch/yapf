@@ -54,10 +54,12 @@ abstract class Action {
         }
         
         if ( $l_bResult ) {
-            return static::SUCCESS;
+            $l_bResult = static::SUCCESS;
         } else {
-            return static::ERROR_PARAM_KO;
+            $l_bResult = static::ERROR_PARAM_KO;
         }
+        
+        return $l_bResult;
     }
 
 }

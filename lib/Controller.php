@@ -60,8 +60,13 @@ abstract class Controller {
         // start logger
         YAPFLogger::log( LOG_DEBUG, 'starting controller' );
         
-        // le path et les parametres 
-        list( $path, $params) = explode('?', $_SERVER[ 'REQUEST_URI' ]);
+        if ( false !== strpos( $_SERVER['REQUEST_URI'], '?' )) {
+            // le path et les parametres 
+            list( $path, $params) = explode('?', $_SERVER[ 'REQUEST_URI' ]);
+        } else {
+            $params = '';
+            $path = $_SERVER['REQUEST_URI'];
+        }
         
         if ( '/' == $path ) {
             $path='index';
