@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project name="yapf" basedir="." default="main">
 	<property name="builddir" value="${ws}/build" />
-	<property name="srcdir" value="${project.basedir}" override="true" />
+	<property name="srcdir" value="${project.basedir}" />
 	<property name="package" value="YAPF" override="true" />
 
 	<target name="clean" description="nettoyage du dossier principal">
