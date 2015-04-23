@@ -1,0 +1,17 @@
+#!/bin/bash
+export ALL_FILES = ""
+
+
+echo Cleaning report html file
+rm -rfv ./report/*
+
+
+for file in `find -name *Test.php` 
+do
+
+    echo Running test in $file
+    ALL_FILES="$ALL_FILES $file"
+done
+
+echo All files = $ALL_FILES
+phpunit --coverage-html ./report $ALL_FILES
