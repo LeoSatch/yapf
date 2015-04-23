@@ -1,5 +1,5 @@
 #!/bin/bash
-export ALL_FILES = ""
+export ALL_FILES=""
 
 
 echo Cleaning report html file
