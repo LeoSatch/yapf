@@ -14,4 +14,4 @@ do
 done
 
 echo All files = $ALL_FILES
-phpunit --coverage-html ./report --coverage-clover ../../clover.xml $ALL_FILES
+phpunit --coverage-html ./report --coverage-clover ../../clover.xml --bootstrap ./bootstrap.php $ALL_FILES

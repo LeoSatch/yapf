@@ -7,13 +7,41 @@
  */
 abstract class Action {
 
+    /**
+     *
+     * @var type 
+     */
     protected static $_aConf = array();
+    
+    /**
+     *
+     * @var type 
+     */
     protected static $_aParameters = array();
+    
+    /**
+     *
+     * @var type 
+     */
     protected static $_aData = array();
 
+    /**
+     * 
+     */
     const SUCCESS = 1001;
+    
+    /**
+     * 
+     */
     const ERROR_PARAM_KO = 2001;
 
+    /**
+     * 
+     * @param type $in_aConfiguration
+     * @param type $out_aData
+     * @param type $in_aParameters
+     * @return type
+     */
     public static function run( & $in_aConfiguration, & $out_aData = array(), & $in_aParameters = array() ) {
         $l_nResult = static::SUCCESS;
         // la conf
@@ -31,6 +59,9 @@ abstract class Action {
     }
 
 
+    /**
+     * 
+     */
     protected static function _loadConfiguration() {
         // on charge
         //require
