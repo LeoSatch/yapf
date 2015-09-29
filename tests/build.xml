@@ -1,0 +1,25 @@
+<project name="Money" default="build">
+ <target name="clean">
+  <delete dir="./build"/>
+ </target>
+
+ <target name="prepare">
+  <mkdir dir="build"/>
+  <mkdir dir="build/logs"/>
+ </target>
+ 
+ <target name="phpunit">
+  <phpunit>
+    <formatter todir="build/logs" type="xml"/>
+    <batchtest>
+      <fileset dir="./unit">
+        <include name="*Test.php"/>
+      </fileset>
+    </batchtest>
+  </phpunit>
+ </target>
+ 
+ 
+ 
+ <target name="build" depends="clean,prepare,phpunit"/>
+</project>
