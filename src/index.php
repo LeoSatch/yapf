@@ -1,9 +1,8 @@
 <?php
 
-ini_set( 'error_reporting', E_ALL );
-ini_set( 'display_errors', 'On' );
+//use symacopee\yapf\lib\Controller;
+use \Symacopee\YAPF\Lib\Controller;
 
 // le controlleur
-require '../lib/Controller.php';
 Controller::run();
 //    YAPF\Controller\Controller::run( array_slice( explode( '/', $_SERVER[ 'REQUEST_URI' ] ), 1 ) );

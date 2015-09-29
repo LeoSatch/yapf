@@ -1,4 +1,7 @@
 <?php
+namespace app\Todo\lib;
+
+use YAPF\core\TableAccess;
 
 /**
  * Description of TodoList
@@ -18,7 +21,7 @@ class TodoList extends TableAccess {
         // load todo task from DB
         $sQuery = 'select * from todolist where user = 1';
         echo $sQuery;
-        print_r( ParametersSettings::getBackends() );
+        //print_r( ParametersSettings::getBackends() );
     }
 
 }

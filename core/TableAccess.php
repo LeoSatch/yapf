@@ -1,5 +1,6 @@
 <?php
 
+namespace YAPF\core;
 /**
  * Description of TableAccess
  *
